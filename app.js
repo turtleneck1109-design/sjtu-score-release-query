@@ -84,10 +84,26 @@ const els = {
   pageInfo: document.querySelector("#pageInfo"),
 };
 
+function getCurrentAcademicDefaults(now = new Date()) {
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+
+  if (month === 1) return { xnm: year - 1, xqm: "3" };
+  if (month >= 2 && month <= 6) return { xnm: year - 1, xqm: "12" };
+  if (month >= 7 && month <= 8) return { xnm: year - 1, xqm: "16" };
+  return { xnm: year, xqm: "3" };
+}
+
+function applyCurrentAcademicDefaults() {
+  const defaults = getCurrentAcademicDefaults();
+  els.yearInput.value = defaults.xnm;
+  els.termSelect.value = defaults.xqm;
+}
+
 function buildUrl() {
   const params = new URLSearchParams({
     doType: "query",
-    xnm: els.yearInput.value.trim() || "2024",
+    xnm: els.yearInput.value.trim() || String(getCurrentAcademicDefaults().xnm),
     xqm: els.termSelect.value,
     "queryModel.showCount": els.countInput.value.trim() || "5000",
   });
@@ -421,6 +437,7 @@ els.nextPage.addEventListener("click", () => {
   renderTable();
 });
 
+applyCurrentAcademicDefaults();
 updateUrl();
 hydrateFieldSelects();
 renderAll();
