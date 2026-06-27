@@ -133,7 +133,7 @@ function loadPayload(payload, source = "JSON") {
   const items = normalizeItems(payload).filter((item) => item && typeof item === "object");
   state.rawItems = items;
   state.columns = getColumns(items);
-  state.statusField = pickField(state.columns, [/提交状态/, /录入状态/, /^tjzt$/i, /^lrzt$/i, /^zt$/i, /sfwc/i], state.columns[0] || "");
+  state.statusField = pickField(state.columns, [/提交状态/, /录入状态/, /^tjzt$/i, /^lrzt$/i, /^zt$/i, /sfwc/i], "");
   state.groupField = pickField(state.columns, [/开课学院/, /学院/, /单位/, /部门/, /^kkxy/i, /^xymc$/i], state.columns[0] || "");
   state.page = 1;
   hydrateFieldSelects();
@@ -143,10 +143,15 @@ function loadPayload(payload, source = "JSON") {
 
 function hydrateFieldSelects() {
   const options = state.columns.map((field) => `<option value="${escapeHtml(field)}">${escapeHtml(labelFor(field))}</option>`).join("");
-  els.statusFieldSelect.innerHTML = options;
+  els.statusFieldSelect.innerHTML = `<option value="">未识别状态字段</option>${options}`;
   els.groupFieldSelect.innerHTML = options;
   els.statusFieldSelect.value = state.statusField;
   els.groupFieldSelect.value = state.groupField;
+  els.statusFieldSelect.disabled = !state.columns.length;
+}
+
+function hasStatusField() {
+  return Boolean(state.statusField);
 }
 
 function statusKind(value) {
@@ -158,18 +163,19 @@ function statusKind(value) {
 }
 
 function statusLabel(item) {
+  if (!hasStatusField()) return "";
   return flattenValue(item[state.statusField]).trim() || "空/未知";
 }
 
 function isSubmitted(item) {
-  return statusKind(item[state.statusField]) === "good";
+  return hasStatusField() && statusKind(item[state.statusField]) === "good";
 }
 
 function applyFilters() {
   const query = els.searchInput.value.trim().toLowerCase();
   const status = els.statusFilter.value;
   state.filtered = state.rawItems.filter((item) => {
-    const matchesStatus = !status || statusLabel(item) === status;
+    const matchesStatus = !status || (hasStatusField() && statusLabel(item) === status);
     const matchesQuery = !query || state.columns.some((field) => flattenValue(item[field]).toLowerCase().includes(query));
     return matchesStatus && matchesQuery;
   });
@@ -187,11 +193,12 @@ function renderStats() {
   const total = state.rawItems.length;
   const submitted = state.rawItems.filter(isSubmitted).length;
   els.totalCount.textContent = total;
-  els.submittedCount.textContent = submitted;
-  els.pendingCount.textContent = total - submitted;
+  els.submittedCount.textContent = hasStatusField() ? submitted : "-";
+  els.pendingCount.textContent = hasStatusField() ? total - submitted : "-";
 }
 
 function countBy(field, limit = Infinity) {
+  if (!field) return [];
   const counts = new Map();
   state.rawItems.forEach((item) => {
     const key = flattenValue(item[field]).trim() || "空/未知";
@@ -221,14 +228,19 @@ function renderBarChart(container, rows) {
 }
 
 function renderCharts() {
-  renderBarChart(els.statusChart, countBy(state.statusField));
+  if (hasStatusField()) {
+    renderBarChart(els.statusChart, countBy(state.statusField));
+  } else {
+    els.statusChart.innerHTML = `<p class="hint">未识别到提交状态字段，表格不会按课程名误上色。</p>`;
+  }
   renderBarChart(els.groupChart, countBy(state.groupField, 10));
 }
 
 function renderStatusFilter() {
   const current = els.statusFilter.value;
-  const statuses = countBy(state.statusField).map(([label]) => label);
+  const statuses = hasStatusField() ? countBy(state.statusField).map(([label]) => label) : [];
   els.statusFilter.innerHTML = `<option value="">全部状态</option>${statuses.map((label) => `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`).join("")}`;
+  els.statusFilter.disabled = !hasStatusField();
   if (statuses.includes(current)) els.statusFilter.value = current;
 }
 
@@ -247,7 +259,7 @@ function renderTable() {
   els.tableBody.innerHTML = rows.map((item) => {
     return `<tr>${visibleColumns.map((field) => {
       const value = flattenValue(item[field]);
-      if (field === state.statusField) {
+      if (hasStatusField() && field === state.statusField) {
         return `<td><span class="badge ${statusKind(value)}">${escapeHtml(value || "空/未知")}</span></td>`;
       }
       return `<td>${escapeHtml(value)}</td>`;
