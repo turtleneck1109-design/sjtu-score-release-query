@@ -276,7 +276,7 @@ h2 {
 
 .ratio-cards {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-top: 16px;
 }
@@ -302,35 +302,27 @@ h2 {
   line-height: 1;
 }
 
-.ratio-card.published strong {
-  color: #047857;
-}
-
 .ratio-card.submitted strong {
-  color: #1d4ed8;
+  color: #047857;
 }
 
 .ratio-card.unsubmitted strong {
   color: #b91c1c;
 }
 
-.ratio-card.unknown strong {
-  color: #92400e;
-}
-
-.ratio-segment.published {
-  background: #10b981;
+.ratio-card.processing strong {
+  color: #b45309;
 }
 
 .ratio-segment.submitted {
-  background: #3b82f6;
+  background: #10b981;
 }
 
 .ratio-segment.unsubmitted {
   background: #ef4444;
 }
 
-.ratio-segment.unknown {
+.ratio-segment.processing {
   background: #f59e0b;
 }
 .filters {

@@ -172,16 +172,16 @@ function hasStatusField() {
 
 function normalizeStatus(value) {
   const text = flattenValue(value).trim();
-  if (!text) return "unknown";
-  if (/未|否|不|待|退回|失败|0|false/i.test(text)) return "unsubmitted";
-  if (/已发布|发布|已公布|公布|可查|release/i.test(text)) return "published";
-  if (/已提交|提交|已录入|已完成|完成|通过|^是$|^1$|^true$/i.test(text)) return "submitted";
-  return "unknown";
+  if (!text) return "processing";
+  if (/未|否|不|待提交|退回|失败|0|false/i.test(text)) return "unsubmitted";
+  if (/已提交|提交完成|已录入|已完成|完成|通过|发布|公布|可查|release|^是$|^1$|^true$/i.test(text)) return "submitted";
+  if (/处理中|处理|进行中|录入中|审核中|暂存|保存/i.test(text)) return "processing";
+  return "processing";
 }
 
 function statusKind(value) {
   const normalized = normalizeStatus(value);
-  if (normalized === "published" || normalized === "submitted") return "good";
+  if (normalized === "submitted") return "good";
   if (normalized === "unsubmitted") return "bad";
   return "warn";
 }
@@ -194,7 +194,7 @@ function statusLabel(item) {
 function isSubmitted(item) {
   if (!hasStatusField()) return false;
   const normalized = normalizeStatus(item[state.statusField]);
-  return normalized === "published" || normalized === "submitted";
+  return normalized === "submitted";
 }
 
 function applyFilters() {
@@ -255,15 +255,14 @@ function renderBarChart(container, rows) {
 
 function renderStatusRatio() {
   if (!hasStatusField()) {
-    els.statusChart.innerHTML = `<p class="hint">未识别到发布/提交状态字段。请在右上角下拉框选择包含发布、提交、未提交等状态值的字段。</p>`;
+    els.statusChart.innerHTML = `<p class="hint">未识别到提交状态字段。请在右上角下拉框选择包含已提交、未提交、处理中等状态值的字段。</p>`;
     return;
   }
 
   const categories = [
-    { key: "published", label: "已发布", className: "published" },
     { key: "submitted", label: "已提交", className: "submitted" },
     { key: "unsubmitted", label: "未提交", className: "unsubmitted" },
-    { key: "unknown", label: "其他/未知", className: "unknown" },
+    { key: "processing", label: "处理中", className: "processing" },
   ];
   const counts = Object.fromEntries(categories.map((category) => [category.key, 0]));
   state.rawItems.forEach((item) => {
@@ -291,7 +290,7 @@ function renderStatusRatio() {
     }).join("");
 
   els.statusChart.innerHTML = `
-    <div class="ratio-stack">${segments || `<span class="ratio-segment unknown" style="width:100%"></span>`}</div>
+    <div class="ratio-stack">${segments || `<span class="ratio-segment processing" style="width:100%"></span>`}</div>
     <div class="ratio-cards">${cards}</div>
   `;
 }
