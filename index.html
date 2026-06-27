@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>成绩提交情况查询</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">SJTU 成绩录入结果</p>
+          <h1>成绩提交情况查询</h1>
+          <p class="summary">根据教务接口返回的 JSON 数据，快速查看课程成绩是否提交、按学院或状态汇总，并筛选定位具体条目。</p>
+        </div>
+        <div class="hero-stats" aria-label="当前数据概览">
+          <div>
+            <span id="totalCount">0</span>
+            <small>总条目</small>
+          </div>
+          <div>
+            <span id="submittedCount">0</span>
+            <small>已提交</small>
+          </div>
+          <div>
+            <span id="pendingCount">0</span>
+            <small>未提交/未知</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel controls">
+        <div class="field">
+          <label for="yearInput">学年 xnm</label>
+          <input id="yearInput" type="number" value="2024" min="2000" max="2100">
+        </div>
+        <div class="field">
+          <label for="termSelect">学期 xqm</label>
+          <select id="termSelect">
+            <option value="3">秋季 3</option>
+            <option value="12" selected>春季 12</option>
+            <option value="16">夏季 16</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="countInput">条目数</label>
+          <input id="countInput" type="number" value="5000" min="1" max="10000">
+        </div>
+        <button id="fetchButton" class="primary" type="button">直连读取</button>
+        <button id="demoButton" type="button">载入示例</button>
+      </section>
+
+      <section class="panel">
+        <div class="url-row">
+          <input id="urlInput" type="text" aria-label="接口地址">
+          <button id="copyUrlButton" type="button">复制 URL</button>
+        </div>
+        <p class="hint">如果浏览器因登录态或跨域限制无法直连，请先在已登录 i.sjtu.edu.cn 的页面打开该 URL，将返回 JSON 全部复制到下方。</p>
+        <textarea id="jsonInput" spellcheck="false" placeholder="在这里粘贴接口返回的 JSON，例如包含 items: [...] 的对象"></textarea>
+        <div class="actions">
+          <button id="parseButton" class="primary" type="button">解析 JSON</button>
+          <button id="clearButton" type="button">清空数据</button>
+          <span id="statusText" role="status"></span>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="table-toolbar">
+          <div>
+            <h2>明细查询</h2>
+            <p id="resultInfo">尚未载入数据</p>
+          </div>
+          <div class="filters">
+            <input id="searchInput" type="search" placeholder="搜索课程、教师、学院、任意字段">
+            <select id="statusFilter">
+              <option value="">全部状态</option>
+            </select>
+            <select id="pageSizeSelect">
+              <option value="25">每页 25</option>
+              <option value="50" selected>每页 50</option>
+              <option value="100">每页 100</option>
+              <option value="250">每页 250</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <button id="prevPage" type="button">上一页</button>
+          <span id="pageInfo">第 0 / 0 页</span>
+          <button id="nextPage" type="button">下一页</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-title">
+            <h2>状态分布</h2>
+            <select id="statusFieldSelect" aria-label="状态字段"></select>
+          </div>
+          <div id="statusChart" class="bars"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">
+            <h2>学院/单位 Top 10</h2>
+            <select id="groupFieldSelect" aria-label="分组字段"></select>
+          </div>
+          <div id="groupChart" class="bars"></div>
+        </div>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
