@@ -259,6 +259,80 @@ h2 {
   background: var(--accent);
 }
 
+
+.ratio-stack {
+  display: flex;
+  height: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6ebf2;
+  margin-top: 16px;
+}
+
+.ratio-segment {
+  min-width: 3px;
+  height: 100%;
+}
+
+.ratio-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ratio-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.ratio-card span,
+.ratio-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ratio-card strong {
+  display: block;
+  margin: 6px 0 2px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.ratio-card.published strong {
+  color: #047857;
+}
+
+.ratio-card.submitted strong {
+  color: #1d4ed8;
+}
+
+.ratio-card.unsubmitted strong {
+  color: #b91c1c;
+}
+
+.ratio-card.unknown strong {
+  color: #92400e;
+}
+
+.ratio-segment.published {
+  background: #10b981;
+}
+
+.ratio-segment.submitted {
+  background: #3b82f6;
+}
+
+.ratio-segment.unsubmitted {
+  background: #ef4444;
+}
+
+.ratio-segment.unknown {
+  background: #f59e0b;
+}
 .filters {
   display: grid;
   grid-template-columns: minmax(220px, 360px) 160px 130px;
@@ -339,7 +413,6 @@ td {
   align-items: center;
   margin-top: 14px;
 }
-
 @media (max-width: 900px) {
   .hero,
   .grid,
@@ -350,7 +423,8 @@ td {
 
   .hero-stats,
   .controls,
-  .filters {
+  .filters,
+  .ratio-cards {
     grid-template-columns: 1fr;
   }
 

@@ -133,7 +133,7 @@ function loadPayload(payload, source = "JSON") {
   const items = normalizeItems(payload).filter((item) => item && typeof item === "object");
   state.rawItems = items;
   state.columns = getColumns(items);
-  state.statusField = pickField(state.columns, [/提交状态/, /录入状态/, /^tjzt$/i, /^lrzt$/i, /^zt$/i, /sfwc/i], "");
+  state.statusField = pickField(state.columns, [/发布状态/, /公布状态/, /提交状态/, /录入状态/, /成绩状态/, /^fbzt$/i, /^fbbj$/i, /^tjzt$/i, /^lrzt$/i, /^zt$/i, /sfwc/i, /release/i, /submit/i], "");
   state.groupField = pickField(state.columns, [/开课学院/, /学院/, /单位/, /部门/, /^kkxy/i, /^xymc$/i], state.columns[0] || "");
   state.page = 1;
   hydrateFieldSelects();
@@ -154,11 +154,19 @@ function hasStatusField() {
   return Boolean(state.statusField);
 }
 
-function statusKind(value) {
+function normalizeStatus(value) {
   const text = flattenValue(value).trim();
-  if (!text) return "warn";
-  if (/未|否|不|待|退回|失败|0|false/i.test(text)) return "bad";
-  if (/已提交|已录入|已完成|完成|通过|^是$|^1$|^true$/i.test(text)) return "good";
+  if (!text) return "unknown";
+  if (/未|否|不|待|退回|失败|0|false/i.test(text)) return "unsubmitted";
+  if (/已发布|发布|已公布|公布|可查|release/i.test(text)) return "published";
+  if (/已提交|提交|已录入|已完成|完成|通过|^是$|^1$|^true$/i.test(text)) return "submitted";
+  return "unknown";
+}
+
+function statusKind(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "published" || normalized === "submitted") return "good";
+  if (normalized === "unsubmitted") return "bad";
   return "warn";
 }
 
@@ -168,7 +176,9 @@ function statusLabel(item) {
 }
 
 function isSubmitted(item) {
-  return hasStatusField() && statusKind(item[state.statusField]) === "good";
+  if (!hasStatusField()) return false;
+  const normalized = normalizeStatus(item[state.statusField]);
+  return normalized === "published" || normalized === "submitted";
 }
 
 function applyFilters() {
@@ -227,12 +237,51 @@ function renderBarChart(container, rows) {
   }).join("");
 }
 
-function renderCharts() {
-  if (hasStatusField()) {
-    renderBarChart(els.statusChart, countBy(state.statusField));
-  } else {
-    els.statusChart.innerHTML = `<p class="hint">未识别到提交状态字段，表格不会按课程名误上色。</p>`;
+function renderStatusRatio() {
+  if (!hasStatusField()) {
+    els.statusChart.innerHTML = `<p class="hint">未识别到发布/提交状态字段。请在右上角下拉框选择包含发布、提交、未提交等状态值的字段。</p>`;
+    return;
   }
+
+  const categories = [
+    { key: "published", label: "已发布", className: "published" },
+    { key: "submitted", label: "已提交", className: "submitted" },
+    { key: "unsubmitted", label: "未提交", className: "unsubmitted" },
+    { key: "unknown", label: "其他/未知", className: "unknown" },
+  ];
+  const counts = Object.fromEntries(categories.map((category) => [category.key, 0]));
+  state.rawItems.forEach((item) => {
+    counts[normalizeStatus(item[state.statusField])] += 1;
+  });
+  const total = Math.max(1, state.rawItems.length);
+
+  const cards = categories.map((category) => {
+    const count = counts[category.key];
+    const percent = state.rawItems.length ? ((count / total) * 100).toFixed(1) : "0.0";
+    return `
+      <div class="ratio-card ${category.className}">
+        <span>${category.label}</span>
+        <strong>${percent}%</strong>
+        <small>${count} 条</small>
+      </div>
+    `;
+  }).join("");
+
+  const segments = categories
+    .filter((category) => counts[category.key] > 0)
+    .map((category) => {
+      const percent = (counts[category.key] / total) * 100;
+      return `<span class="ratio-segment ${category.className}" style="width:${percent}%" title="${category.label}: ${counts[category.key]} 条"></span>`;
+    }).join("");
+
+  els.statusChart.innerHTML = `
+    <div class="ratio-stack">${segments || `<span class="ratio-segment unknown" style="width:100%"></span>`}</div>
+    <div class="ratio-cards">${cards}</div>
+  `;
+}
+
+function renderCharts() {
+  renderStatusRatio();
   renderBarChart(els.groupChart, countBy(state.groupField, 10));
 }
 
