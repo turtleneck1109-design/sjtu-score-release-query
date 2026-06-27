@@ -55,8 +55,9 @@
         <div class="url-row">
           <input id="urlInput" type="text" aria-label="接口地址">
           <button id="copyUrlButton" type="button">复制 URL</button>
+          <button id="openJsonButton" type="button">打开 JSON</button>
         </div>
-        <p class="hint">如果浏览器因登录态或跨域限制无法直连，请先在已登录 i.sjtu.edu.cn 的页面打开该 URL，将返回 JSON 全部复制到下方。</p>
+        <p class="hint">如果直连失败，请点击“打开 JSON”，在已登录的 i.sjtu.edu.cn 页面复制返回内容，再粘贴到下方解析。</p>
         <textarea id="jsonInput" spellcheck="false" placeholder="在这里粘贴接口返回的 JSON，例如包含 items: [...] 的对象"></textarea>
         <div class="actions">
           <button id="parseButton" class="primary" type="button">解析 JSON</button>

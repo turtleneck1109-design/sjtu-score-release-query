@@ -1,4 +1,4 @@
-﻿const endpoint = "https://i.sjtu.edu.cn/cjlrjg/cjlrjg_cxCjlrjg.html";
+const endpoint = "https://i.sjtu.edu.cn/cjlrjg/cjlrjg_cxCjlrjg.html";
 
 const state = {
   rawItems: [],
@@ -61,6 +61,7 @@ const els = {
   fetchButton: document.querySelector("#fetchButton"),
   demoButton: document.querySelector("#demoButton"),
   copyUrlButton: document.querySelector("#copyUrlButton"),
+  openJsonButton: document.querySelector("#openJsonButton"),
   jsonInput: document.querySelector("#jsonInput"),
   parseButton: document.querySelector("#parseButton"),
   clearButton: document.querySelector("#clearButton"),
@@ -311,6 +312,12 @@ els.copyUrlButton.addEventListener("click", async () => {
   updateUrl();
   await navigator.clipboard.writeText(els.urlInput.value);
   setStatus("URL 已复制。");
+});
+
+els.openJsonButton.addEventListener("click", () => {
+  updateUrl();
+  window.open(els.urlInput.value, "_blank", "noopener");
+  setStatus("已打开 JSON 页面；复制返回内容后粘贴到下方解析。");
 });
 els.parseButton.addEventListener("click", parseTextarea);
 els.clearButton.addEventListener("click", () => {
