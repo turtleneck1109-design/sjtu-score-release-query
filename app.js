@@ -82,10 +82,6 @@ const els = {
   totalCount: document.querySelector("#totalCount"),
   submittedCount: document.querySelector("#submittedCount"),
   pendingCount: document.querySelector("#pendingCount"),
-  statusFieldSelect: document.querySelector("#statusFieldSelect"),
-  groupFieldSelect: document.querySelector("#groupFieldSelect"),
-  statusChart: document.querySelector("#statusChart"),
-  groupChart: document.querySelector("#groupChart"),
   searchInput: document.querySelector("#searchInput"),
   statusFilter: document.querySelector("#statusFilter"),
   pageSizeSelect: document.querySelector("#pageSizeSelect"),
@@ -170,18 +166,7 @@ function loadPayload(payload, source = "JSON") {
   setStatus(`${source} 已载入 ${items.length} 条。`);
 }
 
-function hydrateFieldSelects() {
-  const options = state.columns.map((field) => `<option value="${escapeHtml(field)}">${escapeHtml(labelFor(field))}</option>`).join("");
-  els.statusFieldSelect.innerHTML = `<option value="">未识别状态字段</option>${options}`;
-  els.groupFieldSelect.innerHTML = options;
-  els.statusFieldSelect.value = state.statusField;
-  els.groupFieldSelect.value = state.groupField;
-  els.statusFieldSelect.disabled = !state.columns.length;
-}
 
-function hasStatusField() {
-  return Boolean(state.statusField);
-}
 
 
 function statusLabel() {
@@ -206,7 +191,6 @@ function applyFilters() {
 function renderAll() {
   renderStats();
   renderStatusFilter();
-  renderCharts();
   renderTable();
 }
 
@@ -218,75 +202,6 @@ function renderStats() {
   els.pendingCount.textContent = total - submitted;
 }
 
-function countBy(field, limit = Infinity) {
-  if (!field) return [];
-  const counts = new Map();
-  state.rawItems.forEach((item) => {
-    const key = flattenValue(item[field]).trim() || "空/未知";
-    counts.set(key, (counts.get(key) || 0) + 1);
-  });
-  return Array.from(counts.entries())
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-CN"))
-    .slice(0, limit);
-}
-
-function renderBarChart(container, rows) {
-  const max = Math.max(1, ...rows.map((row) => row[1]));
-  if (!rows.length) {
-    container.innerHTML = `<p class="hint">暂无数据</p>`;
-    return;
-  }
-  container.innerHTML = rows.map(([label, count]) => {
-    const width = Math.max(3, Math.round((count / max) * 100));
-    return `
-      <div class="bar-row" title="${escapeHtml(label)}: ${count}">
-        <span class="bar-label">${escapeHtml(label)}</span>
-        <span class="bar-track"><span class="bar-fill" style="width:${width}%"></span></span>
-        <span class="bar-value">${count}</span>
-      </div>
-    `;
-  }).join("");
-}
-
-function renderStatusRatio() {
-  const categories = [
-    { key: "submitted", label: "已提交", className: "submitted" },
-    { key: "unsubmitted", label: "未提交", className: "unsubmitted" },
-    { key: "processing", label: "处理中", className: "processing" },
-  ];
-  const counts = Object.fromEntries(categories.map((category) => [category.key, 0]));
-  counts.unsubmitted = state.rawItems.length;
-  const total = Math.max(1, state.rawItems.length);
-
-  const cards = categories.map((category) => {
-    const count = counts[category.key];
-    const percent = state.rawItems.length ? ((count / total) * 100).toFixed(1) : "0.0";
-    return `
-      <div class="ratio-card ${category.className}">
-        <span>${category.label}</span>
-        <strong>${percent}%</strong>
-        <small>${count} 条</small>
-      </div>
-    `;
-  }).join("");
-
-  const segments = categories
-    .filter((category) => counts[category.key] > 0)
-    .map((category) => {
-      const percent = (counts[category.key] / total) * 100;
-      return `<span class="ratio-segment ${category.className}" style="width:${percent}%" title="${category.label}: ${counts[category.key]} 条"></span>`;
-    }).join("");
-
-  els.statusChart.innerHTML = `
-    <div class="ratio-stack">${segments || `<span class="ratio-segment processing" style="width:100%"></span>`}</div>
-    <div class="ratio-cards">${cards}</div>
-  `;
-}
-
-function renderCharts() {
-  renderStatusRatio();
-  renderBarChart(els.groupChart, countBy(state.groupField, 10));
-}
 
 function renderStatusFilter() {
   const current = els.statusFilter.value;
@@ -310,9 +225,6 @@ function renderTable() {
   els.tableBody.innerHTML = rows.map((item) => {
     return `<tr>${visibleColumns.map((field) => {
       const value = flattenValue(item[field]);
-      if (hasStatusField() && field === state.statusField) {
-        return `<td>${escapeHtml(value)}</td>`;
-      }
       return `<td>${escapeHtml(value)}</td>`;
     }).join("")}</tr>`;
   }).join("");
@@ -392,15 +304,6 @@ els.clearButton.addEventListener("click", () => {
   hydrateFieldSelects();
   applyFilters();
   setStatus("已清空。");
-});
-els.statusFieldSelect.addEventListener("change", () => {
-  state.statusField = els.statusFieldSelect.value;
-  state.page = 1;
-  applyFilters();
-});
-els.groupFieldSelect.addEventListener("change", () => {
-  state.groupField = els.groupFieldSelect.value;
-  renderCharts();
 });
 els.searchInput.addEventListener("input", () => {
   state.page = 1;

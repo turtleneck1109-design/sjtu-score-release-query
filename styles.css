@@ -205,13 +205,7 @@ h2 {
   font-size: 14px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
 
-.panel-title,
 .table-toolbar {
   display: flex;
   gap: 16px;
@@ -219,112 +213,7 @@ h2 {
   justify-content: space-between;
 }
 
-.panel-title select {
-  max-width: 220px;
-}
 
-.bars {
-  display: grid;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 2fr) 64px;
-  gap: 10px;
-  align-items: center;
-  min-height: 28px;
-}
-
-.bar-label,
-.bar-value {
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bar-track {
-  height: 12px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #e6ebf2;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-}
-
-
-.ratio-stack {
-  display: flex;
-  height: 18px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #e6ebf2;
-  margin-top: 16px;
-}
-
-.ratio-segment {
-  min-width: 3px;
-  height: 100%;
-}
-
-.ratio-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.ratio-card {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
-  background: #f8fafc;
-}
-
-.ratio-card span,
-.ratio-card small {
-  display: block;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.ratio-card strong {
-  display: block;
-  margin: 6px 0 2px;
-  font-size: 24px;
-  line-height: 1;
-}
-
-.ratio-card.submitted strong {
-  color: #047857;
-}
-
-.ratio-card.unsubmitted strong {
-  color: #b91c1c;
-}
-
-.ratio-card.processing strong {
-  color: #b45309;
-}
-
-.ratio-segment.submitted {
-  background: #10b981;
-}
-
-.ratio-segment.unsubmitted {
-  background: #ef4444;
-}
-
-.ratio-segment.processing {
-  background: #f59e0b;
-}
 .filters {
   display: grid;
   grid-template-columns: minmax(220px, 360px) 160px 130px;
@@ -415,8 +304,7 @@ td {
 
   .hero-stats,
   .controls,
-  .filters,
-  .ratio-cards {
+  .filters {
     grid-template-columns: 1fr;
   }
 
