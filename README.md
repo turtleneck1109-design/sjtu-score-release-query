@@ -1,4 +1,4 @@
-﻿# SJTU Score Release Query
+# SJTU Score Release Query
 
 A lightweight static web tool for viewing and filtering SJTU score release and grade submission data from the `i.sjtu.edu.cn` JSON endpoint.
 
@@ -8,7 +8,7 @@ A lightweight static web tool for viewing and filtering SJTU score release and g
 - Open the raw JSON endpoint in a new tab for manual copy-and-paste import.
 - Parse JSON responses that contain an `items` array.
 - Search and filter detailed course records.
-- Show summary counts for total, submitted, and pending or unknown records.
+- Show summary counts for total courses returned by the endpoint, treating returned `items` as unsubmitted courses.
 - Visualize status distribution and top departments or schools.
 - Runs as plain HTML, CSS, and JavaScript with no build step.
 
@@ -24,6 +24,10 @@ Because of that, direct fetch may fail even if you are already logged in. The re
 4. Click the **Open JSON** button in the URL row.
 5. Copy the JSON returned by the SJTU page.
 6. Paste it into the text area and click the parse button.
+
+## Data Interpretation
+
+The `items` array returned by this endpoint is interpreted as the list of courses whose grades have not been submitted yet. The ratio panel therefore treats all loaded records as `unsubmitted`; submitted and processing counts remain zero unless a future endpoint provides full status data.
 
 ## Query Parameters
 

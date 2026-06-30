@@ -170,38 +170,20 @@ function hasStatusField() {
   return Boolean(state.statusField);
 }
 
-function normalizeStatus(value) {
-  const text = flattenValue(value).trim();
-  if (!text) return "processing";
-  if (/未|否|不|待提交|退回|失败|0|false/i.test(text)) return "unsubmitted";
-  if (/已提交|提交完成|已录入|已完成|完成|通过|发布|公布|可查|release|^是$|^1$|^true$/i.test(text)) return "submitted";
-  if (/处理中|处理|进行中|录入中|审核中|暂存|保存/i.test(text)) return "processing";
-  return "processing";
+
+function statusLabel() {
+  return "未提交";
 }
 
-function statusKind(value) {
-  const normalized = normalizeStatus(value);
-  if (normalized === "submitted") return "good";
-  if (normalized === "unsubmitted") return "bad";
-  return "warn";
-}
-
-function statusLabel(item) {
-  if (!hasStatusField()) return "";
-  return flattenValue(item[state.statusField]).trim() || "空/未知";
-}
-
-function isSubmitted(item) {
-  if (!hasStatusField()) return false;
-  const normalized = normalizeStatus(item[state.statusField]);
-  return normalized === "submitted";
+function isSubmitted() {
+  return false;
 }
 
 function applyFilters() {
   const query = els.searchInput.value.trim().toLowerCase();
   const status = els.statusFilter.value;
   state.filtered = state.rawItems.filter((item) => {
-    const matchesStatus = !status || (hasStatusField() && statusLabel(item) === status);
+    const matchesStatus = !status || statusLabel(item) === status;
     const matchesQuery = !query || state.columns.some((field) => flattenValue(item[field]).toLowerCase().includes(query));
     return matchesStatus && matchesQuery;
   });
@@ -219,8 +201,8 @@ function renderStats() {
   const total = state.rawItems.length;
   const submitted = state.rawItems.filter(isSubmitted).length;
   els.totalCount.textContent = total;
-  els.submittedCount.textContent = hasStatusField() ? submitted : "-";
-  els.pendingCount.textContent = hasStatusField() ? total - submitted : "-";
+  els.submittedCount.textContent = submitted;
+  els.pendingCount.textContent = total - submitted;
 }
 
 function countBy(field, limit = Infinity) {
@@ -254,20 +236,13 @@ function renderBarChart(container, rows) {
 }
 
 function renderStatusRatio() {
-  if (!hasStatusField()) {
-    els.statusChart.innerHTML = `<p class="hint">未识别到提交状态字段。请在右上角下拉框选择包含已提交、未提交、处理中等状态值的字段。</p>`;
-    return;
-  }
-
   const categories = [
     { key: "submitted", label: "已提交", className: "submitted" },
     { key: "unsubmitted", label: "未提交", className: "unsubmitted" },
     { key: "processing", label: "处理中", className: "processing" },
   ];
   const counts = Object.fromEntries(categories.map((category) => [category.key, 0]));
-  state.rawItems.forEach((item) => {
-    counts[normalizeStatus(item[state.statusField])] += 1;
-  });
+  counts.unsubmitted = state.rawItems.length;
   const total = Math.max(1, state.rawItems.length);
 
   const cards = categories.map((category) => {
@@ -302,10 +277,9 @@ function renderCharts() {
 
 function renderStatusFilter() {
   const current = els.statusFilter.value;
-  const statuses = hasStatusField() ? countBy(state.statusField).map(([label]) => label) : [];
-  els.statusFilter.innerHTML = `<option value="">全部状态</option>${statuses.map((label) => `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`).join("")}`;
-  els.statusFilter.disabled = !hasStatusField();
-  if (statuses.includes(current)) els.statusFilter.value = current;
+  els.statusFilter.innerHTML = `<option value="">全部状态</option><option value="未提交">未提交</option>`;
+  els.statusFilter.disabled = !state.rawItems.length;
+  if (current === "未提交") els.statusFilter.value = current;
 }
 
 function renderTable() {
@@ -324,7 +298,7 @@ function renderTable() {
     return `<tr>${visibleColumns.map((field) => {
       const value = flattenValue(item[field]);
       if (hasStatusField() && field === state.statusField) {
-        return `<td><span class="badge ${statusKind(value)}">${escapeHtml(value || "空/未知")}</span></td>`;
+        return `<td>${escapeHtml(value)}</td>`;
       }
       return `<td>${escapeHtml(value)}</td>`;
     }).join("")}</tr>`;
