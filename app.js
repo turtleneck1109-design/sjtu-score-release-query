@@ -105,6 +105,7 @@ const els = {
   parseButton: document.querySelector("#parseButton"),
   clearButton: document.querySelector("#clearButton"),
   statusText: document.querySelector("#statusText"),
+  parseProgress: document.querySelector("#parseProgress"),
   totalCount: document.querySelector("#totalCount"),
   submittedCount: document.querySelector("#submittedCount"),
   pendingCount: document.querySelector("#pendingCount"),
@@ -266,6 +267,18 @@ function setStatus(text, isError = false) {
   els.statusText.style.color = isError ? "#b91c1c" : "";
 }
 
+function setParsingBusy(isBusy) {
+  els.parseButton.disabled = isBusy;
+  els.clearButton.disabled = isBusy;
+  els.parseProgress.classList.toggle("active", isBusy);
+  els.parseProgress.setAttribute("aria-hidden", isBusy ? "false" : "true");
+  els.parseButton.textContent = isBusy ? "解析中..." : "解析 JSON";
+}
+
+function waitForPaint() {
+  return new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -292,11 +305,16 @@ async function fetchJson() {
   }
 }
 
-function parseTextarea() {
+async function parseTextarea() {
+  setParsingBusy(true);
+  setStatus("正在解析 JSON，数据较大时请稍等片刻...");
+  await waitForPaint();
   try {
     loadPayload(JSON.parse(els.jsonInput.value), "粘贴数据");
   } catch (error) {
     setStatus(error.message, true);
+  } finally {
+    setParsingBusy(false);
   }
 }
 
