@@ -59,10 +59,36 @@ const preferredColumns = [
 
 const demoData = {
   items: [
-    { kcmc: "高等数学", kch: "MATH1201", jxbmc: "高数-01", jsxm: "张老师", kkxymc: "数学科学学院", tjzt: "已提交", tjsj: "2025-07-01 10:20" },
-    { kcmc: "大学物理", kch: "PHYS1201", jxbmc: "物理-03", jsxm: "李老师", kkxymc: "物理与天文学院", tjzt: "未提交", tjsj: "" },
-    { kcmc: "程序设计", kch: "CS1501", jxbmc: "程序-02", jsxm: "王老师", kkxymc: "电子信息与电气工程学院", tjzt: "已提交", tjsj: "2025-06-29 16:10" },
-    { kcmc: "工程制图", kch: "ME1102", jxbmc: "制图-01", jsxm: "陈老师", kkxymc: "机械与动力工程学院", tjzt: "处理中", tjsj: "" },
+    {
+      kcmc: "高等数学II",
+      jsxm: "杨雄锋/10012",
+      jgmc: "数学科学学院",
+      jxb_id: "43A311EFD4532D9CE065F8163EE1DCCC",
+      kh: "(2025-2026-2)-MATH1202-12(教学班) MATH1202",
+      kknj: "2025",
+      row_id: 1,
+      totalresult: 3,
+    },
+    {
+      kcmc: "组织设计与发展",
+      jsxm: "刘丽莎/15788",
+      jgmc: "安泰经济与管理学院",
+      jxb_id: "51D705C4B4F63E5FE065F8163EE1DCCC",
+      kh: "(2025-2026-2)-BUSS3526-01(教学班) BUSS3526",
+      kknj: "2025",
+      row_id: 2,
+      totalresult: 3,
+    },
+    {
+      kcmc: "应用心理学",
+      jsxm: "陈老师/10240",
+      jgmc: "学生创新中心",
+      jxb_id: "4C316E0CA112494FE065F8163EE1DCCC",
+      kh: "(2025-2026-2)-PSYC1101-01(教学班) PSYC1101",
+      kknj: "2025",
+      row_id: 3,
+      totalresult: 3,
+    },
   ],
 };
 
@@ -161,9 +187,8 @@ function loadPayload(payload, source = "JSON") {
   state.statusField = pickField(state.columns, [/发布状态/, /公布状态/, /提交状态/, /录入状态/, /成绩状态/, /^fbzt$/i, /^fbbj$/i, /^tjzt$/i, /^lrzt$/i, /^zt$/i, /sfwc/i, /release/i, /submit/i], "");
   state.groupField = pickField(state.columns, [/开课学院/, /学院/, /单位/, /部门/, /^kkxy/i, /^xymc$/i], state.columns[0] || "");
   state.page = 1;
-  hydrateFieldSelects();
   applyFilters();
-  setStatus(`${source} 已载入 ${items.length} 条。`);
+  setStatus(`${source} 已载入 ${items.length} 门未提交成绩课程。`);
 }
 
 
@@ -205,7 +230,7 @@ function renderStats() {
 
 function renderStatusFilter() {
   const current = els.statusFilter.value;
-  els.statusFilter.innerHTML = `<option value="">全部状态</option><option value="未提交">未提交</option>`;
+  els.statusFilter.innerHTML = `<option value="">全部未提交课程</option><option value="未提交">未提交</option>`;
   els.statusFilter.disabled = !state.rawItems.length;
   if (current === "未提交") els.statusFilter.value = current;
 }
@@ -230,7 +255,7 @@ function renderTable() {
   }).join("");
 
   const total = state.rawItems.length;
-  els.resultInfo.textContent = total ? `当前显示 ${state.filtered.length} / ${total} 条，表格展示前 ${visibleColumns.length} 个字段。` : "尚未载入数据";
+  els.resultInfo.textContent = total ? `当前显示 ${state.filtered.length} / ${total} 门未提交成绩课程，表格展示前 ${visibleColumns.length} 个字段。` : "尚未载入未提交成绩课程数据";
   els.pageInfo.textContent = `第 ${total ? state.page : 0} / ${total ? pageCount : 0} 页`;
   els.prevPage.disabled = !total || state.page <= 1;
   els.nextPage.disabled = !total || state.page >= pageCount;
@@ -301,7 +326,6 @@ els.clearButton.addEventListener("click", () => {
   state.filtered = [];
   state.page = 1;
   els.jsonInput.value = "";
-  hydrateFieldSelects();
   applyFilters();
   setStatus("已清空。");
 });
@@ -328,5 +352,4 @@ els.nextPage.addEventListener("click", () => {
 
 applyCurrentAcademicDefaults();
 updateUrl();
-hydrateFieldSelects();
 renderAll();
