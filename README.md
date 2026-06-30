@@ -38,9 +38,13 @@ The `items` array returned by this endpoint is interpreted as the list of course
   - `16`: summer term
 - `queryModel.showCount`: number of records requested from the endpoint.
 
+## Live Site
+
+Use the hosted site here: [sjtu-score-release-query.turtleneck.top](https://sjtu-score-release-query.turtleneck.top).
+
 ## Local Usage
 
-Open [index.html](./index.html) directly in a browser.
+Open [index.html](./index.html) directly in a browser if you want to use the local copy.
 
 No dependencies are required.
 
