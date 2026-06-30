@@ -14,7 +14,7 @@ A lightweight static web tool for viewing and filtering SJTU score release and g
 
 ## Why Manual JSON Import Is Needed
 
-The SJTU endpoint is hosted on `https://i.sjtu.edu.cn`, while this tool may run from a local file or a different domain. Browsers normally block JavaScript from reading cross-origin responses unless the target server explicitly enables CORS.
+The SJTU endpoint is hosted on [i.sjtu.edu.cn](https://i.sjtu.edu.cn), while this tool may run from a local file or a different domain. Browsers normally block JavaScript from reading cross-origin responses unless the target server explicitly enables CORS.
 
 Because of that, direct fetch may fail even if you are already logged in. The recommended workflow is:
 
@@ -40,7 +40,7 @@ The `items` array returned by this endpoint is interpreted as the list of course
 
 ## Local Usage
 
-Open `index.html` directly in a browser.
+Open [index.html](./index.html) directly in a browser.
 
 No dependencies are required.
 
@@ -52,4 +52,4 @@ If you deploy or modify it, avoid adding analytics, logging, or backend forwardi
 
 ## Repository
 
-GitHub: <https://github.com/turtleneck1109-design/sjtu-score-release-query>
+GitHub: [turtleneck1109-design/sjtu-score-release-query](https://github.com/turtleneck1109-design/sjtu-score-release-query)
