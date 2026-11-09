@@ -47,7 +47,7 @@
           <label for="countInput">条目数</label>
           <input id="countInput" type="number" value="5000" min="1" max="10000">
         </div>
-        <button id="fetchButton" class="primary" type="button">直连读取</button>
+        <button id="fetchButton" class="primary" type="button">读取教务数据</button>
         <button id="demoButton" type="button">载入示例</button>
       </section>
 
@@ -57,7 +57,16 @@
           <button id="copyUrlButton" type="button">复制 URL</button>
           <button id="openJsonButton" type="button">打开 JSON</button>
         </div>
-        <p class="hint">如果直连失败，请点击“打开 JSON”，在已登录的 i.sjtu.edu.cn 页面复制返回内容，再粘贴到下方解析。</p>
+        <details id="readerHelp" open>
+          <summary>自动回传：首次使用请保存书签助手</summary>
+          <ol class="hint">
+            <li>把 <a id="readerBookmark" href="#" draggable="true">回传教务数据</a> 拖到浏览器书签栏（Windows 可按 Ctrl + Shift + B 显示书签栏）。</li>
+            <li>选择学年和学期，点击“读取教务数据”。</li>
+            <li>在新打开的教务 JSON 页面点击书签栏中的“回传教务数据”，然后切回本页查看结果。</li>
+          </ol>
+          <p class="hint">教务接口不允许其他网站直接读取，因此需要在教务页面点一次书签。数据只在这两个页面之间传递。若出现登录页面，请登录后回到本页重新读取。</p>
+        </details>
+        <p class="hint">手机或不支持书签脚本的浏览器：点击“打开 JSON”，复制返回内容并粘贴到下方解析。</p>
         <textarea id="jsonInput" spellcheck="false" placeholder="在这里粘贴接口返回的 JSON，例如包含 items: [...] 的对象"></textarea>
         <div class="actions">
           <button id="parseButton" class="primary" type="button">解析 JSON</button>
@@ -99,6 +108,7 @@
         </div>
       </section>
     </main>
-    <script src="app.js?v=20260630-2"></script>
+    <script src="reader.js?v=20261109-1"></script>
+    <script src="app.js?v=20261109-1"></script>
   </body>
 </html>

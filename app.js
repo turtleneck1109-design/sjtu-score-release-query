@@ -288,24 +288,20 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-async function fetchJson() {
-  updateUrl();
-  setStatus("正在请求接口...");
-  try {
-    const response = await fetch(els.urlInput.value, {
-      credentials: "include",
-      headers: { Accept: "application/json, text/javascript, */*; q=0.01" },
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    els.jsonInput.value = text;
-    loadPayload(JSON.parse(text), "接口");
-  } catch (error) {
-    setStatus(`直连失败：${error.message}。可手动打开 URL 后粘贴 JSON。`, true);
-  }
-}
+const reader = createSjtuReader({
+  button: els.fetchButton,
+  bookmark: document.querySelector("#readerBookmark"),
+  help: document.querySelector("#readerHelp"),
+  getUrl: buildUrl,
+  onPayload(payload) {
+    loadPayload(payload, "教务接口");
+    els.jsonInput.value = JSON.stringify(payload);
+  },
+  onStatus: setStatus,
+});
 
 async function parseTextarea() {
+  reader.cancel();
   setParsingBusy(true);
   setStatus("正在解析 JSON，数据较大时请稍等片刻...");
   await waitForPaint();
@@ -321,8 +317,8 @@ async function parseTextarea() {
 els.yearInput.addEventListener("input", updateUrl);
 els.termSelect.addEventListener("change", updateUrl);
 els.countInput.addEventListener("input", updateUrl);
-els.fetchButton.addEventListener("click", fetchJson);
 els.demoButton.addEventListener("click", () => {
+  reader.cancel();
   els.jsonInput.value = JSON.stringify(demoData, null, 2);
   loadPayload(demoData, "示例数据");
 });
@@ -339,6 +335,7 @@ els.openJsonButton.addEventListener("click", () => {
 });
 els.parseButton.addEventListener("click", parseTextarea);
 els.clearButton.addEventListener("click", () => {
+  reader.cancel();
   state.rawItems = [];
   state.columns = [];
   state.filtered = [];
